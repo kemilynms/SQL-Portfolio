@@ -1,0 +1,41 @@
+# In this SQL, I segment customers based on their purchasing behavior by analyzing their transaction history. 
+# Complex queries, window functions, CTEs (Common Table Expressions).
+
+CREATE TABLE customers (
+   customer_id INT PRIMARY KEY,
+   name VARCHAR(100),
+   purchase_frequency INT,
+   total_spent DECIMAL(10, 2)
+);
+
+INSERT INTO customers (customer_id, name, purchase_frequency, total_spent) VALUES
+(1, 'Alice', 5, 500.00),
+(2, 'Bob', 2, 150.00),
+(3, 'Charlie', 10, 1000.00),
+(4, 'David', 3, 200.00);
+
+#1. Group customers by purchase frequency and amount spent
+SELECT 
+    customer_id,
+    name,
+    purchase_frequency,
+    total_spent,
+    CASE
+        WHEN total_spent > 500 THEN 'High Value'
+        WHEN total_spent BETWEEN 200 AND 500 THEN 'Medium Value'
+        ELSE 'Low Value'
+    END AS value_segment
+FROM customers;
+
+#2. Identify high-value customers
+SELECT customer_id, name, total_spent
+FROM customers
+WHERE total_spent > 500;
+
+#3. Rank customers based on different metrics
+SELECT 
+    customer_id,
+    name,
+    RANK() OVER (ORDER BY total_spent DESC) AS rank_by_spent,
+    RANK() OVER (ORDER BY purchase_frequency DESC) AS rank_by_frequency
+FROM customers;
