@@ -1,0 +1,33 @@
+# In this SQL, I analyze sales data to uncover trends and insights.
+# Data querying, aggregation, JOIN operations, subqueries.
+
+CREATE TABLE sales (
+    sale_id INT PRIMARY KEY,
+    product_id INT,
+    category VARCHAR(50),
+    amount DECIMAL(10, 2),
+    sale_date DATE
+);
+
+INSERT INTO sales (sale_id, product_id, category, amount, sale_date) VALUES
+(1, 101, 'Electronics', 120.00, '2024-01-15'),
+(2, 102, 'Clothing', 80.00, '2024-01-18'),
+(3, 103, 'Electronics', 150.00, '2024-02-10'),
+(4, 104, 'Groceries', 60.00, '2024-02-12');
+
+#1. Total sales per product category
+SELECT category, SUM(amount) AS total_sales
+FROM sales
+GROUP BY category;
+
+#2. Top-selling products
+SELECT product_id, SUM(amount) AS total_sales
+FROM sales
+GROUP BY product_id
+ORDER BY total_sales DESC;
+
+#3. Sales trends over time
+SELECT DATE_FORMAT(sale_date, '%Y-%m') AS month, SUM(amount) AS total_sales
+FROM sales
+GROUP BY month
+ORDER BY month;
