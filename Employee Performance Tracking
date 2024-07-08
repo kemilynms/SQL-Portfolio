@@ -1,0 +1,46 @@
+# In this SQL, I track and analyze employee performance data.
+# Data manipulation, JOINs, window functions.
+
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    department VARCHAR(50)
+);
+
+CREATE TABLE performance (
+    performance_id INT PRIMARY KEY,
+    employee_id INT,
+    metric VARCHAR(50),
+    value DECIMAL(10, 2),
+    record_date DATE,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+);
+
+INSERT INTO employees (employee_id, name, department) VALUES
+(1, 'John', 'Sales'),
+(2, 'Jane', 'Marketing');
+
+INSERT INTO performance (performance_id, employee_id, metric, value, record_date) VALUES
+(1, 1, 'Sales Generated', 1000.00, '2023-01-15'),
+(2, 1, 'Tasks Completed', 15, '2023-01-18'),
+(3, 2, 'Sales Generated', 800.00, '2023-01-20');
+
+#1. Calculate employee performance metrics
+SELECT e.name, p.metric, SUM(p.value) AS total_value
+FROM employees e
+JOIN performance p ON e.employee_id = p.employee_id
+GROUP BY e.name, p.metric;
+
+#2. Identify top performers
+SELECT e.name, SUM(p.value) AS total_sales
+FROM employees e
+JOIN performance p ON e.employee_id = p.employee_id
+WHERE p.metric = 'Sales Generated'
+GROUP BY e.name
+ORDER BY total_sales DESC;
+
+#3. Track performance trends over time
+SELECT e.name, p.metric, p.record_date, p.value
+FROM employees e
+JOIN performance p ON e.employee_id = p.employee_id
+ORDER BY e.name, p.record_date;
