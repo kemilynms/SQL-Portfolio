@@ -1,0 +1,48 @@
+# In this SQL, I analyzed financial data to provide insights into company performance.
+# Aggregation, window functions, complex queries.
+
+CREATE TABLE financials (
+    transaction_id INT PRIMARY KEY,
+    transaction_date DATE,
+    type VARCHAR(50),
+    amount DECIMAL(10, 2)
+);
+
+INSERT INTO financials (transaction_id, transaction_date, type, amount) VALUES
+(1, '2023-01-01', 'Revenue', 5000.00),
+(2, '2023-01-02', 'Expense', 2000.00),
+(3, '2023-02-01', 'Revenue', 7000.00),
+(4, '2023-02-02', 'Expense', 3000.00);
+
+#1. Monthly revenue, expenses, and profit
+SELECT 
+    DATE_FORMAT(transaction_date, '%Y-%m') AS month,
+    SUM(CASE WHEN type = 'Revenue' THEN amount ELSE 0 END) AS total_revenue,
+    SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) AS total_expense,
+    SUM(CASE WHEN type = 'Revenue' THEN amount ELSE 0 END) - SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) AS profit
+FROM financials
+GROUP BY month;
+
+#2. Best and worst performing months
+SELECT month, profit
+FROM (
+    SELECT 
+        DATE_FORMAT(transaction_date, '%Y-%m') AS month,
+        SUM(CASE WHEN type = 'Revenue' THEN amount ELSE 0 END) - SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) AS profit
+    FROM financials
+    GROUP BY month
+) monthly_performance
+ORDER BY profit DESC;
+
+#3. Running totals and moving averages
+SELECT 
+    transaction_date,
+    SUM(amount) AS running_total_revenue,
+    (SELECT AVG(amount) 
+     FROM financials AS f2
+     WHERE f2.transaction_date <= f.transaction_date AND f2.type = 'Revenue'
+    ) AS moving_average_revenue
+FROM financials AS f
+WHERE f.type = 'Revenue'
+GROUP BY transaction_date
+ORDER BY transaction_date;
